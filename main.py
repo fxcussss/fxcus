@@ -6,10 +6,7 @@ import os
 import time
 import asyncio
 
-# Replaced keep_alive with a dummy placeholder (can be removed if unnecessary)
-def keep_alive():
-    pass
-
+from keep_alive import keep_alive
 keep_alive()
 
 intents = discord.Intents.default()
@@ -28,7 +25,6 @@ channel_owners = {}
 
 JOIN_TO_CREATE_CHANNEL_ID = 1360696520697188533  # Replace with your channel ID
 
-# Function to log events
 async def log_event(event_message):
     print(event_message)
     with open("activity_logs.txt", "a") as log_file:
@@ -132,7 +128,7 @@ async def change_nickname(interaction):
     for member in interaction.user.voice.channel.members:
         await member.edit(nick=f"VCUser-{member.display_name}")
 
-# Add /vcoption command
+# Slash command and button view
 from discord import app_commands
 from discord.ui import Button, View
 
@@ -172,7 +168,6 @@ async def vcoption(interaction: discord.Interaction):
         return
     await interaction.response.send_message("Choose an option:", view=VCOptionView(), ephemeral=True)
 
-# Button handler
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
     if not interaction.type == discord.InteractionType.component:
