@@ -102,31 +102,30 @@ async def vcoption(interaction: discord.Interaction):
             return
 
         # Dropdown options
-      options = [
-          "Lock Channel",
-          "Unlock Channel",
-          "Rename Channel",
-          "Delete Channel",
-          "Set User Limit",
-          "Move Users to Another Channel",
-          "Set Channel Region",
-          "Set Channel Bitrate",
-          "Change Channel Permissions",
-          "Mute User",
-          "Unmute User",
-          "Kick User",
-          "Ban User",
-          "Unban User",
-          "Change Nickname"
-      ]
-
-        
-        select = discord.ui.Select(
-            placeholder="Choose an option to manage your channel",
+options = [
+    "Lock Channel",
+    "Unlock Channel",
+    "Rename Channel",
+    "Delete Channel",
+    "Set User Limit",
+    "Move Users to Another Channel",
+    "Set Channel Region",
+    "Set Channel Bitrate",
+    "Change Channel Permissions",
+    "Mute User",
+    "Unmute User",
+    "Kick User",
+    "Ban User",
+    "Unban User",
+    "Change Nickname"
+]
+   
+select = discord.ui.Select(
+        placeholder="Choose an option to manage your channel",
             options=[discord.SelectOption(label=option) for option in options]
         )
 
-        async def select_callback(interaction: discord.Interaction):
+async def select_callback(interaction: discord.Interaction):
             choice = select.values[0]
             await execute_option(interaction, choice)
             await interaction.response.send_message(f"✅ Option '{choice}' selected!", ephemeral=True)
