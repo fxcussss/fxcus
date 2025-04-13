@@ -4,8 +4,7 @@ import random
 import string
 import os
 import time
-from keep_alive import keep_alive
-keep_alive()
+
 import asyncio
 
 # Set up intents for the bot
