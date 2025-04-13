@@ -130,7 +130,7 @@ async def select_callback(interaction: discord.Interaction):
             await execute_option(interaction, choice)
             await interaction.response.send_message(f"✅ Option '{choice}' selected!", ephemeral=True)
 
-        select.callback = select_callback
+select.callback = select_callback
         view = discord.ui.View()
         view.add_item(select)
 
