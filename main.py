@@ -5,6 +5,7 @@ import string
 import os
 import time
 from keep_alive import keep_alive
+keep_alive()
 import asyncio
 
 # Set up intents for the bot
@@ -264,7 +265,7 @@ async def set_user_limit(interaction: discord.Interaction):
         await interaction.followup.send("❌ You took too long to respond.", ephemeral=True)
 
 # Start the Flask server in a separate thread to keep it alive
-threading.Thread(target=run).start()
+keep_alive()
 
 # Run the bot
 bot.run(TOKEN)
