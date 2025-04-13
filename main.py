@@ -4,7 +4,8 @@ import random
 import string
 import os
 import time
-
+from keep_alive import keep_alive
+keep_alive()
 import asyncio
 
 # Set up intents for the bot
@@ -19,16 +20,6 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 
 # Initialize the bot with slash commands and intents
 bot = commands.Bot(command_prefix="!", intents=intents)
-
-# Initialize Flask
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "Bot is running!"
-
-def run():
-    app.run(host="0.0.0.0", port=8080)
 
 # A dictionary to track users' cooldowns and temp channels
 user_temp_channels = {}  # user_id: channel object
@@ -60,12 +51,14 @@ async def log_event(event_message):
 # Event to confirm the bot is online
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user}")
-    await bot.tree.sync()  # Syncing the commands to Discord
-    print("Commands synced successfully.")
-
-    # Start the periodic task to check for empty channels
-    check_empty_channels.start()
+        print(f"Logged in as {bot.user}")
+        await bot.change_presence(
+            activity=discord.Game("⚡ Online 24/7"),
+            status=discord.Status.online
+        )
+        await bot.tree.sync()
+        print("Commands synced successfully.")
+        check_empty_channels.start()
 
 # Event to create a temp channel when joining the "Join to Create" voice channel
 @bot.event
@@ -97,8 +90,8 @@ async def on_voice_state_update(member: discord.Member, before: discord.VoiceSta
         await member.move_to(channel)
 
         try:
-            await member.send(f"🎧 Your voice room `{channel_name}` has been created and you're the host!")
-            await log_event(f"Created voice channel `{channel_name}` for {member.display_name}")
+            await member.send(f"🎧 Your voice room {channel_name} has been created and you're the host!")
+            await log_event(f"Created voice channel {channel_name} for {member.display_name}")
         except discord.Forbidden:
             pass
 
@@ -195,23 +188,23 @@ async def execute_option(interaction: discord.Interaction, choice: str):
 async def lockvc(interaction: discord.Interaction):
     channel = interaction.user.voice.channel
     await channel.set_permissions(interaction.guild.default_role, connect=False)
-    await interaction.response.send_message(f"🔒 `{channel.name}` is now locked.", ephemeral=True)
-    await log_event(f"Locked channel `{channel.name}`")
+    await interaction.response.send_message(f"🔒 {channel.name} is now locked.", ephemeral=True)
+    await log_event(f"Locked channel {channel.name}")
 
 # Unlocking the channel
 async def unlockvc(interaction: discord.Interaction):
     channel = interaction.user.voice.channel
     await channel.set_permissions(interaction.guild.default_role, connect=True)
-    await interaction.response.send_message(f"🔓 `{channel.name}` is now unlocked.", ephemeral=True)
-    await log_event(f"Unlocked channel `{channel.name}`")
+    await interaction.response.send_message(f"🔓 {channel.name} is now unlocked.", ephemeral=True)
+    await log_event(f"Unlocked channel {channel.name}")
 
 # Renaming the channel
 async def renamevc(interaction: discord.Interaction):
     channel = interaction.user.voice.channel
     new_name = interaction.data['options'][0]['value']
     await channel.edit(name=new_name)
-    await interaction.response.send_message(f"✏️ Renamed to `{new_name}`.", ephemeral=True)
-    await log_event(f"Renamed channel `{channel.name}` to `{new_name}`")
+    await interaction.response.send_message(f"✏️ Renamed to {new_name}.", ephemeral=True)
+    await log_event(f"Renamed channel {channel.name} to {new_name}")
 
 # Deleting the channel
 async def deletevc(interaction: discord.Interaction):
@@ -221,8 +214,8 @@ async def deletevc(interaction: discord.Interaction):
         del created_channels[channel.id]
         del user_temp_channels[interaction.user.id]
         del channel_owners[channel.id]
-        await interaction.response.send_message(f"🧹 `{channel.name}` has been deleted.", ephemeral=True)
-        await log_event(f"Deleted channel `{channel.name}`")
+        await interaction.response.send_message(f"🧹 {channel.name} has been deleted.", ephemeral=True)
+        await log_event(f"Deleted channel {channel.name}")
     else:
         await interaction.response.send_message("❌ You must be alone in the channel to delete it.", ephemeral=True)
 
@@ -236,7 +229,7 @@ async def move_user(interaction: discord.Interaction, target: discord.Member):
             if target.voice:
                 await target.move_to(channel)
                 await interaction.response.send_message(f"✅ Moved {target.display_name} to your temporary channel!", ephemeral=True)
-                await log_event(f"Moved {target.display_name} to `{channel.name}`")
+                await log_event(f"Moved {target.display_name} to {channel.name}")
             else:
                 await interaction.response.send_message("❌ The target user is not in a voice channel.", ephemeral=True)
         else:
@@ -256,8 +249,8 @@ async def set_user_limit(interaction: discord.Interaction):
         msg = await bot.wait_for("message", timeout=60.0, check=check)
         limit = int(msg.content)
         await channel.edit(user_limit=limit)
-        await interaction.followup.send(f"User limit for `{channel.name}` set to {limit}.", ephemeral=True)
-        await log_event(f"Set user limit for `{channel.name}` to {limit}")
+        await interaction.followup.send(f"User limit for {channel.name} set to {limit}.", ephemeral=True)
+        await log_event(f"Set user limit for {channel.name} to {limit}")
     except ValueError:
         await interaction.followup.send("❌ Please enter a valid number.", ephemeral=True)
     except asyncio.TimeoutError:
